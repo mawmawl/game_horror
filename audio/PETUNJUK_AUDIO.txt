@@ -1,0 +1,18 @@
+CARA MEMASUKKAN AUDIO KE DALAM GAME:
+======================================
+Cukup masukkan file audio MP3 ke dalam folder 'audio' ini:
+
+1. MUSIK LATAR / BACKSOUND (Beda Tiap Level):
+   - bgm1.mp3 -> Backsound Level 1 (Kamar Terkutuk)
+   - bgm2.mp3 -> Backsound Level 2 (Rumah Sakit Terbengkalai)
+   - bgm3.mp3 -> Backsound Level 3 (Sekolah Angker Malam Hari)
+   *(Otomatis diputar berulang-ulang / loop sesuai level yang sedang dimainkan)*
+   *(Jika hanya punya 1 lagu, cukup namai: bgm.mp3)*
+
+2. SUARA JUMPSCARE (1 File untuk Semua Level):
+   - jumpscare.mp3 -> Suara jeritan jumpscare keras saat tertangkap.
+
+CATATAN:
+Game dilengkapi sistem otomatis cerdas. Jika file MP3 belum dimasukkan
+atau masih kosong, game otomatis menggunakan suara synthesizer bawaan
+(Web Audio API), sehingga aman dan tidak akan pernah error saat dipresentasikan.

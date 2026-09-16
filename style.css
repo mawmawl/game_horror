@@ -1,0 +1,1569 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+body {
+  background-color: #030303;
+  color: #fff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+#game-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background-color: #050505;
+  cursor: default;
+}
+
+/* Kursor hanya disembunyikan saat sedang aktif bermain di dalam game */
+#game-container.playing {
+  cursor: none;
+}
+
+/* ========================================================
+   HUD (HEADS UP DISPLAY)
+   ======================================================== */
+#hud {
+  position: absolute;
+  top: 18px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10;
+  pointer-events: none;
+  gap: 12px;
+}
+
+.hud-box {
+  background: rgba(12, 10, 10, 0.8);
+  backdrop-filter: blur(4px);
+  padding: 9px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 14px;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.85);
+}
+
+.hud-label {
+  color: #a1a1aa;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+#lives-container {
+  display: flex;
+  gap: 4px;
+}
+
+.heart {
+  font-size: 17px;
+  display: inline-block;
+  transition: transform 0.2s, filter 0.3s;
+}
+
+.heart.lost {
+  filter: grayscale(100%) brightness(35%);
+  transform: scale(0.85);
+}
+
+#keys-count {
+  color: #fbbf24;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+#info-notification {
+  flex: 1;
+  max-width: 500px;
+  text-align: center;
+  justify-content: center;
+  color: #e2e8f0;
+  font-size: 13.5px;
+  border-color: rgba(225, 29, 72, 0.3);
+  transition: color 0.3s, border-color 0.3s, background-color 0.3s;
+}
+
+/* ========================================================
+   INDIKATOR MENGGELEDAH & RADAR JARAK HANTU
+   ======================================================== */
+#search-hud {
+  display: none;
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 8, 8, 0.92);
+  border: 2px solid #dc2626;
+  padding: 10px 22px;
+  border-radius: 10px;
+  z-index: 12;
+  pointer-events: none;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 0 25px rgba(220, 38, 38, 0.55);
+  animation: searchPulse 0.8s infinite alternate;
+}
+
+@keyframes searchPulse {
+  0% { box-shadow: 0 0 15px rgba(220, 38, 38, 0.4); }
+  100% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.9); }
+}
+
+#search-hud-title {
+  font-size: 12px;
+  letter-spacing: 2px;
+  font-weight: bold;
+  color: #fca5a5;
+  margin-bottom: 6px;
+}
+
+#search-bar-track {
+  width: 240px;
+  height: 10px;
+  background: #2a1212;
+  border-radius: 5px;
+  border: 1px solid #7f1d1d;
+  overflow: hidden;
+}
+
+#search-bar-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #dc2626, #fbbf24);
+  border-radius: 5px;
+  transition: width 0.05s linear;
+}
+
+#search-hud-hint {
+  margin-top: 6px;
+  font-size: 10.5px;
+  color: #ef4444;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+/* Radar Jarak Hantu */
+#proximity-container {
+  width: 240px;
+  margin-top: 7px;
+  padding: 5px 10px;
+  background: rgba(0, 0, 0, 0.65);
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+#proximity-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+#proximity-track {
+  width: 100%;
+  height: 5px;
+  background: #1e1e1e;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+#proximity-fill {
+  width: 10%;
+  height: 100%;
+  background: #22c55e;
+  border-radius: 3px;
+  transition: width 0.1s linear, background-color 0.2s ease;
+}
+
+.proximity-safe #proximity-text { color: #4ade80; }
+.proximity-safe #proximity-fill { background: #22c55e; }
+
+.proximity-warning #proximity-text { color: #facc15; }
+.proximity-warning #proximity-fill { background: #eab308; }
+
+.proximity-danger #proximity-text { color: #fb923c; }
+.proximity-danger #proximity-fill { background: #f97316; }
+
+.proximity-critical #proximity-text { 
+  color: #ef4444; 
+  animation: blinkFast 0.25s infinite alternate;
+}
+.proximity-critical #proximity-fill { 
+  background: #dc2626; 
+  box-shadow: 0 0 10px #ef4444;
+}
+
+@keyframes blinkFast {
+  0% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+/* ========================================================
+   TEMA RUANGAN (3 LEVEL BACKGROUND)
+   ======================================================== */
+#room {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  transition: background 0.6s ease;
+}
+
+/* LEVEL 1: KAMAR TERKUTUK */
+#room.theme-bedroom {
+  background: 
+    radial-gradient(ellipse at 50% 100%, #171111 0%, #080606 80%),
+    linear-gradient(to bottom, #110d0d 0%, #1c1515 70%, #0d0a0a 100%);
+}
+
+/* LEVEL 2: RUMAH SAKIT TERBENGKALAI */
+#room.theme-hospital {
+  background: 
+    radial-gradient(ellipse at 50% 100%, #081a17 0%, #030c0a 80%),
+    linear-gradient(to bottom, #061311 0%, #0b1f1c 70%, #020807 100%);
+}
+
+/* LEVEL 3: SEKOLAH ANGKER MALAM HARI */
+#room.theme-school {
+  background: 
+    radial-gradient(ellipse at 50% 100%, #0f172a 0%, #030712 80%),
+    linear-gradient(to bottom, #090e17 0%, #111827 70%, #030712 100%);
+}
+
+.room-title-decor {
+  position: absolute;
+  top: 15%;
+  left: 6%;
+  color: rgba(255, 255, 255, 0.08);
+  font-family: monospace;
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  pointer-events: none;
+}
+
+.wall-scratches {
+  position: absolute;
+  color: rgba(185, 28, 28, 0.5);
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  font-size: 14px;
+  letter-spacing: 2px;
+  transform: rotate(-3deg);
+  pointer-events: none;
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
+}
+
+/* Jendela Kamar / Ruangan */
+.window-obj {
+  position: absolute;
+  width: 120px;
+  height: 150px;
+  background: #09090b;
+  border: 5px solid #27272a;
+  border-radius: 60px 60px 0 0;
+  overflow: hidden;
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.08);
+}
+
+.moon {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  width: 30px;
+  height: 30px;
+  background: #e2e8f0;
+  border-radius: 50%;
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.6);
+}
+
+.window-cross {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-top: 4px solid #27272a;
+  border-left: 4px solid #27272a;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* ========================================================
+   PINTU KELUAR BESI DENGAN 3 GEMBOK
+   ======================================================== */
+.exit-door {
+  position: absolute;
+  width: 100px;
+  height: 210px;
+  background: #141416;
+  border: 5px solid #3f3f46;
+  border-radius: 6px 6px 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  z-index: 4;
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s;
+}
+
+.exit-door:hover {
+  transform: scale(1.02);
+}
+
+.exit-door.ready-to-unlock {
+  border-color: #22c55e;
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+}
+
+.exit-door.ready-to-unlock .door-status-badge {
+  background: rgba(20, 83, 45, 0.9);
+  color: #4ade80;
+  border-color: #22c55e;
+  animation: pulseGreen 1s infinite alternate;
+}
+
+@keyframes pulseGreen {
+  0% { box-shadow: 0 0 5px rgba(34, 197, 94, 0.4); }
+  100% { box-shadow: 0 0 15px rgba(74, 222, 128, 0.8); }
+}
+
+.door-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.door-panel {
+  position: relative;
+  width: 82px;
+  height: 170px;
+  margin-top: 10px;
+  background: #1f1f23;
+  border: 2px solid #27272a;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+#door-locks-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 5;
+}
+
+.door-lock {
+  width: 32px;
+  height: 32px;
+  background: rgba(10, 10, 10, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  transition: transform 0.2s, background-color 0.3s, border-color 0.3s;
+}
+
+.door-lock.locked {
+  border-color: #ef4444;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
+}
+
+.door-lock.unlocked {
+  border-color: #22c55e;
+  background: rgba(20, 83, 45, 0.6);
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+  transform: scale(0.95);
+}
+
+.door-knob-metal {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  background: #71717a;
+  border-radius: 50%;
+  box-shadow: 0 0 4px #000;
+}
+
+.door-status-badge {
+  position: absolute;
+  bottom: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: #fbbf24;
+  font-size: 9px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.exit-sign {
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #14532d;
+  color: #4ade80;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 3px;
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
+}
+
+/* ========================================================
+   PERABOTAN UMUM
+   ======================================================== */
+.furniture-spot {
+  position: absolute;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s, filter 0.2s;
+  z-index: 4;
+}
+
+.furniture-spot:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.4));
+}
+
+.spot-label {
+  margin-top: 6px;
+  font-size: 11.5px;
+  color: #d4d4d8;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+
+.spot-action-hint {
+  font-size: 9.5px;
+  color: #fbbf24;
+  margin-top: 2px;
+  background: rgba(40, 20, 10, 0.8);
+  padding: 1px 5px;
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+.furniture-spot.searched .spot-label {
+  color: #71717a;
+  border-color: transparent;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.furniture-spot.searched .spot-action-hint {
+  display: none;
+}
+
+/* ========================================================
+   VISUAL PERABOTAN LEVEL 1 (KAMAR)
+   ======================================================== */
+.painting {
+  width: 65px;
+  height: 80px;
+  transform: rotate(8deg);
+}
+
+.wardrobe {
+  width: 105px;
+  height: 200px;
+  background: #271c19;
+  border: 4px solid #140d0b;
+  border-radius: 4px;
+  display: flex;
+  position: relative;
+  box-shadow: inset 0 0 20px #000;
+}
+
+.wardrobe-door {
+  flex: 1;
+  border-right: 2px solid #140d0b;
+  position: relative;
+}
+
+.door-knob {
+  position: absolute;
+  top: 50%;
+  left: 6px;
+  width: 8px;
+  height: 8px;
+  background: #78350f;
+  border-radius: 50%;
+}
+
+.bed {
+  width: 165px;
+  height: 95px;
+  background: #3f2a24;
+  border-radius: 6px;
+  position: relative;
+  border-bottom: 8px solid #1a120f;
+}
+
+.bed-mattress {
+  position: absolute;
+  top: 15px;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  background: #524744;
+  border-radius: 4px;
+}
+
+.pillow {
+  position: absolute;
+  top: 6px;
+  left: 10px;
+  width: 42px;
+  height: 22px;
+  background: #78716c;
+  border-radius: 4px;
+}
+
+.blood-stain {
+  position: absolute;
+  bottom: 12px;
+  right: 25px;
+  width: 25px;
+  height: 18px;
+  background: rgba(136, 19, 19, 0.7);
+  border-radius: 50%;
+  filter: blur(2px);
+}
+
+.vanity {
+  width: 85px;
+  height: 125px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mirror {
+  width: 60px;
+  height: 70px;
+  background: #27272a;
+  border: 4px solid #52525b;
+  border-radius: 30px 30px 0 0;
+  position: relative;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.9);
+}
+
+.crack-line {
+  position: absolute;
+  top: 15px;
+  left: 28px;
+  width: 1px;
+  height: 38px;
+  background: rgba(255, 255, 255, 0.4);
+  transform: rotate(25deg);
+}
+
+.desk {
+  width: 85px;
+  height: 45px;
+  background: #2b1d19;
+  border: 3px solid #170e0b;
+}
+
+.nightstand {
+  width: 58px;
+  height: 62px;
+  background: #2e1d16;
+  border: 3px solid #170d08;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 4px;
+}
+
+.drawer {
+  height: 20px;
+  background: #3d271e;
+  border: 1px solid #170d08;
+  position: relative;
+}
+
+.drawer::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 3px;
+  background: #a16207;
+}
+
+.wooden-box {
+  width: 62px;
+  height: 48px;
+  background: #3b2316;
+  border: 3px solid #1a0f09;
+  position: relative;
+}
+
+.box-lid {
+  height: 14px;
+  background: #4a2d1d;
+  border-bottom: 2px solid #1a0f09;
+}
+
+.box-lock {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 10px;
+  background: #ca8a04;
+  border-radius: 2px;
+}
+
+/* ========================================================
+   VISUAL PERABOTAN LEVEL 2 (RUMAH SAKIT)
+   ======================================================== */
+.stretcher {
+  width: 160px;
+  height: 80px;
+  background: #1e293b;
+  border: 4px solid #0f172a;
+  border-radius: 4px;
+  position: relative;
+}
+
+.stretcher-sheet {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  background: #cbd5e1;
+  border-radius: 2px;
+}
+
+.stretcher-blood {
+  position: absolute;
+  top: 15px;
+  right: 35px;
+  width: 40px;
+  height: 25px;
+  background: rgba(185, 28, 28, 0.75);
+  border-radius: 40%;
+  filter: blur(1px);
+}
+
+.med-cabinet {
+  width: 85px;
+  height: 110px;
+  background: #f1f5f9;
+  border: 4px solid #94a3b8;
+  border-radius: 4px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.med-cross {
+  width: 28px;
+  height: 28px;
+  position: relative;
+}
+
+.med-cross::before, .med-cross::after {
+  content: '';
+  position: absolute;
+  background: #ef4444;
+}
+
+.med-cross::before {
+  top: 0;
+  left: 9px;
+  width: 10px;
+  height: 28px;
+}
+
+.med-cross::after {
+  top: 9px;
+  left: 0;
+  width: 28px;
+  height: 10px;
+}
+
+.wheelchair {
+  width: 75px;
+  height: 85px;
+  position: relative;
+  border-left: 6px solid #475569;
+  border-bottom: 6px solid #475569;
+}
+
+.wheelchair-wheel {
+  position: absolute;
+  bottom: -15px;
+  left: 10px;
+  width: 40px;
+  height: 40px;
+  border: 4px dashed #64748b;
+  border-radius: 50%;
+}
+
+.op-desk {
+  width: 110px;
+  height: 55px;
+  background: #334155;
+  border: 3px solid #1e293b;
+  position: relative;
+}
+
+.op-tools {
+  position: absolute;
+  top: 8px;
+  left: 15px;
+  right: 15px;
+  height: 4px;
+  background: #94a3b8;
+  box-shadow: 0 8px 0 #94a3b8, 0 16px 0 #94a3b8;
+}
+
+.hospital-curtain {
+  width: 65px;
+  height: 130px;
+  background: #14532d;
+  border-left: 4px dashed #052e16;
+  opacity: 0.85;
+  position: relative;
+}
+
+.ecg-monitor {
+  width: 70px;
+  height: 60px;
+  background: #09090b;
+  border: 3px solid #27272a;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.ecg-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #ef4444;
+  box-shadow: 0 0 6px #ef4444;
+}
+
+/* ========================================================
+   VISUAL PERABOTAN LEVEL 3 (SEKOLAH)
+   ======================================================== */
+.blackboard {
+  width: 150px;
+  height: 85px;
+  background: #064e3b;
+  border: 5px solid #78350f;
+  border-radius: 3px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(239, 68, 68, 0.8);
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.teacher-desk {
+  width: 115px;
+  height: 65px;
+  background: #451a03;
+  border: 4px solid #291002;
+  position: relative;
+}
+
+.desk-books {
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  width: 25px;
+  height: 16px;
+  background: #b91c1c;
+  box-shadow: 0 5px 0 #1d4ed8;
+}
+
+.school-locker {
+  width: 75px;
+  height: 160px;
+  background: #334155;
+  border: 4px solid #1e293b;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  padding: 6px;
+}
+
+.locker-vent {
+  height: 4px;
+  background: #0f172a;
+  margin: 3px 0;
+}
+
+.backpack {
+  width: 50px;
+  height: 55px;
+  background: #1e3a8a;
+  border: 3px solid #0f172a;
+  border-radius: 12px 12px 4px 4px;
+  position: relative;
+}
+
+.backpack-zipper {
+  position: absolute;
+  top: 15px;
+  left: 10px;
+  right: 10px;
+  height: 3px;
+  background: #94a3b8;
+}
+
+.wall-clock {
+  width: 55px;
+  height: 55px;
+  background: #f8fafc;
+  border: 5px solid #334155;
+  border-radius: 50%;
+  position: relative;
+}
+
+.clock-hand-hour {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 3px;
+  background: #000;
+  transform-origin: left center;
+  transform: rotate(0deg); /* Menunjuk jam 3 */
+}
+
+.clock-hand-min {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 3px;
+  height: 18px;
+  background: #dc2626;
+  transform-origin: center top;
+  transform: rotate(0deg); /* Menunjuk menit 12 */
+}
+
+.trophy-case {
+  width: 75px;
+  height: 120px;
+  background: #1e293b;
+  border: 4px solid #475569;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trophy-cup {
+  width: 25px;
+  height: 30px;
+  background: #eab308;
+  border-radius: 0 0 12px 12px;
+  position: relative;
+  box-shadow: 0 0 8px rgba(234, 179, 8, 0.4);
+}
+
+/* ========================================================
+   HANTU YANG MENGINTAI (GHOST)
+   ======================================================== */
+#ghost {
+  position: absolute;
+  width: 85px;
+  height: 105px;
+  pointer-events: none;
+  z-index: 4;
+  transition: top 0.25s linear, left 0.25s linear;
+  opacity: 0.92;
+  filter: drop-shadow(0 0 15px rgba(220, 38, 38, 0.45));
+}
+
+#ghost.stalking {
+  filter: drop-shadow(0 0 25px rgba(239, 68, 68, 0.9));
+}
+
+#ghost svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ========================================================
+   EFEK MASK SENTER (POV PERTAMA TANPA KURSOR)
+   ======================================================== */
+#flashlight-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 6;
+  background: radial-gradient(
+    circle 195px at var(--x, -500px) var(--y, -500px),
+    rgba(255, 245, 205, 0.15) 0%,
+    rgba(20, 15, 15, 0.45) 110px,
+    rgba(4, 4, 4, 0.88) 160px,
+    rgba(1, 1, 1, 0.995) 195px
+  );
+}
+
+/* ========================================================
+   MEDKIT PEMULIH NYAWA (BERKELIARAN)
+   ======================================================== */
+.roaming-medkit {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: top 1.5s ease-in-out, left 1.5s ease-in-out, transform 0.2s;
+  animation: floatMedkit 2s infinite alternate ease-in-out;
+}
+
+@keyframes floatMedkit {
+  0% { transform: translateY(0px) scale(1); }
+  100% { transform: translateY(-7px) scale(1.08); }
+}
+
+.roaming-medkit:hover {
+  transform: scale(1.22) translateY(-4px);
+  filter: drop-shadow(0 0 16px #22c55e);
+}
+
+.medkit-box {
+  width: 38px;
+  height: 30px;
+  background: #f8fafc;
+  border: 3px solid #16a34a;
+  border-radius: 6px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.5);
+}
+
+.medkit-cross {
+  width: 14px;
+  height: 14px;
+  position: relative;
+}
+
+.medkit-cross::before,
+.medkit-cross::after {
+  content: '';
+  position: absolute;
+  background: #dc2626;
+  border-radius: 1px;
+}
+
+.medkit-cross::before {
+  top: 0;
+  left: 4.5px;
+  width: 5px;
+  height: 14px;
+}
+
+.medkit-cross::after {
+  top: 4.5px;
+  left: 0;
+  width: 14px;
+  height: 5px;
+}
+
+.medkit-glow {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(34, 197, 94, 0.3) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.medkit-badge {
+  position: absolute;
+  bottom: -20px;
+  font-size: 9px;
+  font-weight: bold;
+  color: #4ade80;
+  background: rgba(0, 0, 0, 0.85);
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid #16a34a;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ========================================================
+   LAYAR OVERLAY (START, WIN, LEVEL COMPLETE, GAMEOVER)
+   ======================================================== */
+.screen-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(5, 5, 5, 0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  text-align: center;
+  padding: 24px;
+  cursor: default !important;
+}
+
+.menu-overlay,
+.modal-overlay {
+  cursor: default !important;
+}
+
+.menu-btn,
+.btn,
+.level-card,
+.level-select-btn,
+.modal-close-btn,
+.modal-back-btn,
+.slider,
+button,
+input {
+  cursor: pointer !important;
+}
+
+.screen-overlay h1 {
+  font-size: 38px;
+  letter-spacing: 3px;
+  margin-bottom: 12px;
+  color: #e11d48;
+  text-transform: uppercase;
+}
+
+.screen-overlay p {
+  max-width: 580px;
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: #cbd5e1;
+  margin-bottom: 22px;
+}
+
+.warning-text {
+  color: #f87171;
+  font-weight: bold;
+}
+
+.btn {
+  padding: 12px 28px;
+  font-size: 15px;
+  font-weight: bold;
+  color: #fff;
+  background: #e11d48;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 16px rgba(225, 29, 72, 0.4);
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btn:hover {
+  background: #be123c;
+  transform: scale(1.04);
+}
+
+/* ========================================================
+   MENU UTAMA GAME HOROR
+   ======================================================== */
+.menu-overlay {
+  background: 
+    radial-gradient(ellipse at 50% 40%, rgba(69, 10, 10, 0.45) 0%, rgba(5, 5, 5, 0.98) 75%),
+    linear-gradient(to bottom, #030303 0%, #120707 50%, #030303 100%) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 25;
+}
+
+.menu-backdrop-fog {
+  position: absolute;
+  width: 140%;
+  height: 140%;
+  background: radial-gradient(circle, rgba(225, 29, 72, 0.09) 0%, transparent 60%);
+  animation: fogDrift 10s infinite alternate ease-in-out;
+  pointer-events: none;
+}
+
+@keyframes fogDrift {
+  0% { transform: translate(-20px, -15px) scale(1); }
+  100% { transform: translate(20px, 15px) scale(1.15); }
+}
+
+.menu-container {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 600px;
+  width: 90%;
+  text-align: center;
+}
+
+.menu-header {
+  margin-bottom: 24px;
+}
+
+.game-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: #f87171;
+  background: rgba(127, 29, 29, 0.4);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  padding: 4px 14px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+  box-shadow: 0 0 15px rgba(225, 29, 72, 0.25);
+}
+
+.game-title {
+  font-size: 48px;
+  line-height: 1.05;
+  letter-spacing: 5px;
+  font-weight: 900;
+  color: #f8fafc;
+  text-shadow: 0 0 20px rgba(225, 29, 72, 0.6), 0 0 40px rgba(0, 0, 0, 0.9);
+  margin-bottom: 8px;
+}
+
+.title-highlight {
+  color: #e11d48;
+  animation: titleGlow 2s infinite alternate ease-in-out;
+}
+
+@keyframes titleGlow {
+  0% { text-shadow: 0 0 15px #e11d48; }
+  100% { text-shadow: 0 0 35px #ff1a4a, 0 0 60px rgba(225, 29, 72, 0.8); }
+}
+
+.game-subtitle {
+  font-size: 14px;
+  letter-spacing: 1.5px;
+  color: #94a3b8;
+  margin-bottom: 14px;
+}
+
+.warning-pill {
+  display: inline-block;
+  font-size: 11px;
+  color: #fca5a5;
+  background: rgba(40, 10, 10, 0.7);
+  border: 1px solid rgba(220, 38, 38, 0.4);
+  padding: 4px 12px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+/* Daftar Tombol Menu */
+.menu-buttons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 330px;
+  margin-bottom: 24px;
+}
+
+.menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 14px;
+  padding: 13px 22px;
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #e2e8f0;
+  background: rgba(18, 12, 12, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-icon {
+  font-size: 18px;
+}
+
+.menu-btn:hover {
+  background: rgba(35, 12, 15, 0.95);
+  border-color: #e11d48;
+  color: #fff;
+  transform: translateX(8px);
+  box-shadow: 0 0 20px rgba(225, 29, 72, 0.5), -3px 0 0 #e11d48;
+}
+
+.primary-btn {
+  background: linear-gradient(90deg, #b91c1c, #991b1b);
+  border-color: #ef4444;
+  color: #fff;
+  animation: primaryPulse 2.5s infinite alternate;
+}
+
+.primary-btn:hover {
+  background: linear-gradient(90deg, #dc2626, #b91c1c);
+  transform: translateX(8px) scale(1.02);
+}
+
+@keyframes primaryPulse {
+  0% { box-shadow: 0 0 15px rgba(225, 29, 72, 0.4); }
+  100% { box-shadow: 0 0 28px rgba(239, 68, 68, 0.8); }
+}
+
+.menu-footer {
+  font-size: 11.5px;
+  color: #64748b;
+  letter-spacing: 1px;
+}
+
+/* ========================================================
+   MODAL DIALOGS (PILIH LEVEL, CARA MAIN, SETTINGS, CREDITS)
+   ======================================================== */
+.modal-overlay {
+  background: rgba(2, 2, 2, 0.96) !important;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-card {
+  background: #0f0a0a;
+  border: 1px solid rgba(225, 29, 72, 0.35);
+  border-radius: 12px;
+  padding: 24px 28px;
+  max-width: 680px;
+  width: 92%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.95), 0 0 25px rgba(225, 29, 72, 0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-wide {
+  max-width: 780px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 12px;
+  margin-bottom: 18px;
+}
+
+.modal-header h2 {
+  font-size: 20px;
+  letter-spacing: 2px;
+  color: #e11d48;
+  font-weight: 800;
+}
+
+.modal-close-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: color 0.15s, transform 0.1s;
+}
+
+.modal-close-btn:hover {
+  color: #ef4444;
+  transform: scale(1.15);
+}
+
+.modal-back-btn {
+  align-self: center;
+  margin-top: 20px;
+  background: #27272a;
+  border: 1px solid #3f3f46;
+}
+
+.modal-back-btn:hover {
+  background: #3f3f46;
+}
+
+/* Grid Pilih Level */
+.levels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.level-card {
+  background: #181212;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.level-card:hover {
+  border-color: #e11d48;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8), 0 0 15px rgba(225, 29, 72, 0.3);
+}
+
+.level-card-tag {
+  align-self: flex-start;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #16a34a;
+  color: #fff;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.level-card h3 {
+  font-size: 15px;
+  letter-spacing: 1px;
+  color: #f8fafc;
+  margin-bottom: 6px;
+}
+
+.level-card p {
+  font-size: 12px;
+  line-height: 1.4;
+  color: #94a3b8;
+  margin-bottom: 12px;
+  flex-grow: 1;
+}
+
+.level-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11px;
+  color: #cbd5e1;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 6px 8px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.level-select-btn {
+  padding: 8px 12px;
+  font-size: 12px;
+  width: 100%;
+}
+
+/* Grid Cara Bermain */
+.howtoplay-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  text-align: left;
+}
+
+.guide-box {
+  background: #150f0f;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.guide-icon {
+  font-size: 26px;
+  margin-bottom: 6px;
+}
+
+.guide-box h4 {
+  font-size: 13.5px;
+  color: #fbbf24;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+.guide-box p {
+  font-size: 12px;
+  line-height: 1.45;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* Pengaturan Suara */
+.settings-content {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  text-align: left;
+  padding: 8px 0;
+}
+
+.setting-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.setting-row label {
+  font-size: 13.5px;
+  color: #cbd5e1;
+  display: flex;
+  justify-content: space-between;
+}
+
+.setting-row label span {
+  color: #e11d48;
+  font-weight: bold;
+}
+
+.slider {
+  width: 100%;
+  accent-color: #e11d48;
+  cursor: pointer;
+}
+
+.checkbox-row {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.checkbox-row input {
+  width: 18px;
+  height: 18px;
+  accent-color: #e11d48;
+  cursor: pointer;
+}
+
+/* Kredit */
+.credits-content {
+  text-align: left;
+}
+
+.credits-box {
+  background: #181212;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13.5px;
+  color: #cbd5e1;
+}
+
+/* ========================================================
+   JUMPSCARE FULL SCREEN
+   ======================================================== */
+#jumpscare-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  animation: strobe 0.08s infinite alternate, shake 0.09s infinite alternate;
+}
+
+#jumpscare-face-container,
+#jumpscare-face-container svg,
+#jumpscare-face {
+  width: 85vmin;
+  height: 85vmin;
+  filter: contrast(240%) drop-shadow(0 0 50px #ff0000);
+}
+
+#ghost-content,
+#ghost-content svg {
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes strobe {
+  0% { background: #000000; }
+  50% { background: #700000; }
+  100% { background: #ffffff; }
+}
+
+@keyframes shake {
+  0% { transform: translate(-14px, 12px) scale(1.1); }
+  50% { transform: translate(16px, -16px) scale(1.22); }
+  100% { transform: translate(-12px, -14px) scale(1.14); }
+}
