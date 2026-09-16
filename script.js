@@ -1,113 +1,50 @@
 /* ========================================================
    NIGHTMARE ESCAPES - 3 LEVEL HOROR DENGAN HANTU KHUSUS
-   Level 1: Kamar Terkutuk -> Hantu Kuntilanak Rumah Tua
-   Level 2: Rumah Sakit Terbengkalai -> Hantu Suster Berdarah
-   Level 3: Sekolah Angker -> Hantu Guru / Janitor Sekolah
+   Level 1: Kamar Terkutuk -> Hantu dari asset/level1.png
+   Level 2: Rumah Sakit Terbengkalai -> Hantu dari asset/level2.png
+   Level 3: Sekolah Angker -> Hantu Guru / Janitor Sekolah (SVG)
    ======================================================== */
 
-/* 1. ASSET VISUAL SVG UNTUK MASING-MASING HANTU */
+/* 1. ASSET VISUAL UNTUK MASING-MASING HANTU */
 
-// LEVEL 1: HANTU BIASA / KUNTILANAK RUMAH TUA
+// LEVEL 1: Gambar dari asset/level1.png (Berkeliaran di ruangan)
 const ghostLvl1Roaming = `
-  <svg viewBox="0 0 100 120" fill="none">
-    <!-- Gaun Putih Panjang Kusam & Rambut Hitam Menjuntai -->
-    <path d="M50 8 C30 8 18 28 18 60 C18 90 8 115 25 115 C35 115 42 98 50 98 C58 98 65 115 75 115 C92 115 82 90 82 60 C82 28 70 8 50 8 Z" fill="#e2e8f0" stroke="#0f172a" stroke-width="2"/>
-    <path d="M30 18 C20 35 16 75 22 100" stroke="#020617" stroke-width="6" stroke-linecap="round"/>
-    <path d="M70 18 C80 35 84 75 78 100" stroke="#020617" stroke-width="6" stroke-linecap="round"/>
-    <path d="M38 12 C45 6 55 6 62 12 C60 30 58 45 62 55 C55 52 45 52 38 55 C42 45 40 30 38 12 Z" fill="#020617"/>
-    <!-- Mata Merah Menyala -->
-    <ellipse cx="40" cy="42" rx="4.5" ry="6" fill="#dc2626"/>
-    <circle cx="40" cy="42" r="1.8" fill="#fff"/>
-    <ellipse cx="60" cy="42" rx="4.5" ry="6" fill="#dc2626"/>
-    <circle cx="60" cy="42" r="1.8" fill="#fff"/>
-    <!-- Mulut Hitam Menganga -->
-    <ellipse cx="50" cy="62" rx="5" ry="9" fill="#000"/>
-  </svg>
+  <img src="asset/level1.png" alt="ghost" style="
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: brightness(0.55) saturate(1.2) drop-shadow(0 0 14px rgba(220,38,38,0.7));
+  "/>
 `;
 
+// LEVEL 1: Jumpscare layar penuh menggunakan asset/level1.png
 const ghostLvl1Jumpscare = `
-  <svg viewBox="0 0 200 200" fill="none">
-    <!-- Wajah Pucat Kuntilanak -->
-    <path d="M100 15 C45 15 25 60 25 105 C25 140 45 185 100 185 C155 185 175 140 175 105 C175 60 155 15 100 15 Z" fill="#cbd5e1" stroke="#000" stroke-width="4"/>
-    <!-- Rambut Kusut Menjuntai -->
-    <path d="M25 60 C10 100 8 160 20 195" stroke="#050505" stroke-width="12" stroke-linecap="round"/>
-    <path d="M175 60 C190 100 192 160 180 195" stroke="#050505" stroke-width="12" stroke-linecap="round"/>
-    <!-- Mata Berdarah Merah Menyala -->
-    <ellipse cx="65" cy="85" rx="22" ry="28" fill="#050505" stroke="#dc2626" stroke-width="5"/>
-    <circle cx="65" cy="85" r="8" fill="#ef4444"/>
-    <ellipse cx="135" cy="85" rx="22" ry="28" fill="#050505" stroke="#dc2626" stroke-width="5"/>
-    <circle cx="135" cy="85" r="8" fill="#ef4444"/>
-    <!-- Hidung & Cakaran -->
-    <path d="M96 112 L100 102 L104 112 Z" fill="#000"/>
-    <line x1="55" y1="45" x2="80" y2="60" stroke="#7f1d1d" stroke-width="3"/>
-    <line x1="145" y1="45" x2="120" y2="60" stroke="#7f1d1d" stroke-width="3"/>
-    <!-- Mulut Menjerit & Gigi Runcing -->
-    <ellipse cx="100" cy="148" rx="32" ry="30" fill="#000" stroke="#7f1d1d" stroke-width="6"/>
-    <polygon points="72,130 78,142 84,130" fill="#f8fafc"/>
-    <polygon points="84,130 90,144 96,130" fill="#f8fafc"/>
-    <polygon points="96,130 102,144 108,130" fill="#f8fafc"/>
-    <polygon points="108,130 114,142 120,130" fill="#f8fafc"/>
-    <polygon points="120,130 126,140 132,130" fill="#f8fafc"/>
-    <polygon points="78,164 84,150 90,164" fill="#f8fafc"/>
-    <polygon points="104,164 110,150 116,164" fill="#f8fafc"/>
-  </svg>
+  <img src="asset/level1.png" alt="jumpscare" style="
+    width: 85vmin;
+    height: 85vmin;
+    object-fit: contain;
+    filter: contrast(200%) brightness(0.8) saturate(1.8) drop-shadow(0 0 50px #ff0000);
+  "/>
 `;
 
-// LEVEL 2: HANTU SUSTER RUMAH SAKIT (NURSE GHOST)
+// LEVEL 2: Gambar dari asset/level2.png (Berkeliaran di ruangan)
 const ghostLvl2Roaming = `
-  <svg viewBox="0 0 100 120" fill="none">
-    <!-- Seragam Suster Putih Berlumur Darah -->
-    <path d="M50 16 C34 16 22 34 22 65 C22 92 14 112 28 112 C38 112 44 96 50 96 C56 96 62 112 72 112 C86 112 78 92 78 65 C78 34 66 16 50 16 Z" fill="#e2e8f0" stroke="#991b1b" stroke-width="2"/>
-    <!-- Topi Suster dengan Palang Merah -->
-    <path d="M36 12 L64 12 L60 2 L40 2 Z" fill="#f8fafc" stroke="#dc2626" stroke-width="1.5"/>
-    <rect x="48" y="4" width="4" height="6" fill="#dc2626"/>
-    <rect x="47" y="5" width="6" height="4" fill="#dc2626"/>
-    <!-- Noda Darah di Baju -->
-    <circle cx="36" cy="70" r="7" fill="#b91c1c" opacity="0.8"/>
-    <circle cx="62" cy="85" r="9" fill="#991b1b" opacity="0.8"/>
-    <!-- Jarum Suntik Berkarat di Tangan -->
-    <line x1="16" y1="65" x2="8" y2="85" stroke="#94a3b8" stroke-width="3"/>
-    <polygon points="6,90 8,83 11,85" fill="#ef4444"/>
-    <!-- Mata Hitam Melotot Berair Darah -->
-    <ellipse cx="40" cy="42" rx="5" ry="7" fill="#000" stroke="#dc2626" stroke-width="1.5"/>
-    <circle cx="40" cy="42" r="2" fill="#ef4444"/>
-    <ellipse cx="60" cy="42" rx="5" ry="7" fill="#000" stroke="#dc2626" stroke-width="1.5"/>
-    <circle cx="60" cy="42" r="2" fill="#ef4444"/>
-    <!-- Masker Medis Robek Berdarah -->
-    <rect x="34" y="54" width="32" height="14" rx="3" fill="#64748b" stroke="#7f1d1d" stroke-width="2"/>
-    <line x1="38" y1="60" x2="62" y2="62" stroke="#dc2626" stroke-width="3"/>
-  </svg>
+  <img src="asset/level2.png" alt="ghost" style="
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: brightness(0.5) saturate(1.3) drop-shadow(0 0 16px rgba(220,38,38,0.8));
+  "/>
 `;
 
+// LEVEL 2: Jumpscare layar penuh menggunakan asset/level2.png
 const ghostLvl2Jumpscare = `
-  <svg viewBox="0 0 200 200" fill="none">
-    <!-- Kepala Suster Horor -->
-    <path d="M100 20 C45 20 28 65 28 110 C28 145 45 185 100 185 C155 185 172 145 172 110 C172 65 155 20 100 20 Z" fill="#e2e8f0" stroke="#7f1d1d" stroke-width="5"/>
-    <!-- Topi Suster Bernoda Darah Kental -->
-    <path d="M65 18 L135 18 L125 2 L75 2 Z" fill="#f8fafc" stroke="#dc2626" stroke-width="3"/>
-    <rect x="96" y="5" width="8" height="10" fill="#dc2626"/>
-    <rect x="93" y="7" width="14" height="6" fill="#dc2626"/>
-    <!-- Bekas Jahitan Luka di Dahi -->
-    <line x1="50" y1="50" x2="85" y2="40" stroke="#7f1d1d" stroke-width="3"/>
-    <line x1="58" y1="42" x2="56" y2="48" stroke="#000" stroke-width="2"/>
-    <line x1="68" y1="40" x2="66" y2="46" stroke="#000" stroke-width="2"/>
-    <line x1="78" y1="38" x2="76" y2="44" stroke="#000" stroke-width="2"/>
-    <!-- Mata Berdarah Menetes -->
-    <ellipse cx="65" cy="85" rx="20" ry="26" fill="#000" stroke="#b91c1c" stroke-width="5"/>
-    <circle cx="65" cy="85" r="7" fill="#ef4444"/>
-    <path d="M65 111 L63 130" stroke="#dc2626" stroke-width="3"/>
-    <ellipse cx="135" cy="85" rx="20" ry="26" fill="#000" stroke="#b91c1c" stroke-width="5"/>
-    <circle cx="135" cy="85" r="7" fill="#ef4444"/>
-    <path d="M135 111 L137 130" stroke="#dc2626" stroke-width="3"/>
-    <!-- Masker Medis Robek Memperlihatkan Mulut Gigi Taring Bedah -->
-    <path d="M45 125 L155 125 L145 175 L55 175 Z" fill="#334155" stroke="#7f1d1d" stroke-width="4"/>
-    <ellipse cx="100" cy="150" rx="30" ry="20" fill="#000"/>
-    <polygon points="80,138 86,148 92,138" fill="#f8fafc"/>
-    <polygon points="92,138 98,150 104,138" fill="#f8fafc"/>
-    <polygon points="104,138 110,148 116,138" fill="#f8fafc"/>
-    <polygon points="86,162 92,152 98,162" fill="#f8fafc"/>
-    <polygon points="102,162 108,152 114,162" fill="#f8fafc"/>
-  </svg>
+  <img src="asset/level2.png" alt="jumpscare" style="
+    width: 85vmin;
+    height: 85vmin;
+    object-fit: contain;
+    filter: contrast(200%) brightness(0.75) saturate(1.8) drop-shadow(0 0 55px #ff0000);
+  "/>
 `;
 
 // LEVEL 3: HANTU GURU / JANITOR SEKOLAH
