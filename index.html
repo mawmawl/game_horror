@@ -323,6 +323,17 @@
       <button id="btn-restart" class="btn">KEMBALI KE MENU UTAMA</button>
     </div>
 
+    <!-- LAYAR PAUSE (MUNCUL SAAT TOMBOL ESC DITEKAN) -->
+    <div id="pause-screen" class="screen-overlay" style="display: none; z-index: 40;">
+      <h1 style="color: #38bdf8;">PERMAINAN DIJEDA</h1>
+      <p>Tekan <b>ESC</b> lagi untuk melanjutkan, atau pilih salah satu opsi di bawah.</p>
+      <div style="display: flex; gap: 14px; flex-wrap: wrap; justify-content: center;">
+        <button id="btn-resume" class="btn">▶ LANJUTKAN</button>
+        <button id="btn-pause-retry" class="btn" style="background: #334155;">🔄 ULANGI LEVEL</button>
+        <button id="btn-pause-mainmenu" class="btn" style="background: #334155;">🏠 MENU UTAMA</button>
+      </div>
+    </div>
+
   </div>
 
   <!-- LAYAR JUMPSCARE KERAS -->

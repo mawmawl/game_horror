@@ -104,7 +104,7 @@ const levelsData = [
     title: "KAMAR TERKUTUK",
     subtitle: "Level 1: Kamar Bawah Tanah Angker",
     themeClass: "theme-bedroom",
-    ghostName: "Kuntilanak Rumah Tua",
+    ghostName: "Alvi",
     roamingSvg: ghostLvl1Roaming,
     jumpscareSvg: ghostLvl1Jumpscare,
     soundType: "banshee",
@@ -189,7 +189,7 @@ const levelsData = [
     title: "RUMAH SAKIT TERBENGKALAI",
     subtitle: "Level 2: Ruang Rawat & Operasi 404",
     themeClass: "theme-hospital",
-    ghostName: "Suster Berdarah",
+    ghostName: "Bu Pras",
     roamingSvg: ghostLvl2Roaming,
     jumpscareSvg: ghostLvl2Jumpscare,
     soundType: "nurse",
@@ -261,7 +261,7 @@ const levelsData = [
     title: "SEKOLAH ANGKER MALAM HARI",
     subtitle: "Level 3: Ruang Kelas Terkutuk 13",
     themeClass: "theme-school",
-    ghostName: "Hantu Guru / Janitor",
+    ghostName: "Calvin Lucas",
     roamingSvg: ghostLvl3Roaming,
     jumpscareSvg: ghostLvl3Jumpscare,
     soundType: "teacher",
@@ -344,6 +344,7 @@ let locksOpened = 0;
 const totalLocks = 3;
 let isGameOver = false;
 let isInvulnerable = false;
+let isPaused = false;
 
 // Posisi Kursor & Hantu
 let mouseX = -500;
@@ -379,6 +380,10 @@ const levelCompleteScreen = document.getElementById('level-complete-screen');
 const levelCompleteMessage = document.getElementById('level-complete-message');
 const winScreen = document.getElementById('win-screen');
 const gameoverScreen = document.getElementById('gameover-screen');
+const pauseScreen = document.getElementById('pause-screen');
+const btnResume = document.getElementById('btn-resume');
+const btnPauseRetry = document.getElementById('btn-pause-retry');
+const btnPauseMainMenu = document.getElementById('btn-pause-mainmenu');
 const jumpscareOverlay = document.getElementById('jumpscare-overlay');
 const jumpscareFaceContainer = document.getElementById('jumpscare-face-container');
 const flashlightOverlay = document.getElementById('flashlight-overlay');
@@ -746,13 +751,13 @@ window.addEventListener('mousemove', (e) => {
   document.documentElement.style.setProperty('--x', `${mouseX}px`);
   document.documentElement.style.setProperty('--y', `${mouseY}px`);
 
-  if (!isGameRunning || isGameOver || isInvulnerable) return;
+  if (!isGameRunning || isGameOver || isInvulnerable || isPaused) return;
 
   checkFlashlightHitGhost();
 });
 
 function checkFlashlightHitGhost() {
-  if (!isGameRunning || isInvulnerable || isGameOver) return;
+  if (!isGameRunning || isInvulnerable || isGameOver || isPaused) return;
 
   const ghostCenterX = ghostX + 42;
   const ghostCenterY = ghostY + 52;
@@ -766,7 +771,7 @@ function checkFlashlightHitGhost() {
 
 /* 7. PERILAKU HANTU (AI) */
 function moveGhostRandomly() {
-  if (!isGameRunning || isGameOver || isSearching) return;
+  if (!isGameRunning || isGameOver || isSearching || isPaused) return;
 
   const marginX = 120;
   const marginY = 120;
@@ -895,7 +900,7 @@ function loadLevel(levelIdx) {
 
     spotDiv.addEventListener('mousedown', (e) => {
       if (e.button !== 0) return;
-      if (!isGameRunning || isGameOver || isInvulnerable) return;
+      if (!isGameRunning || isGameOver || isInvulnerable || isPaused) return;
 
       const sData = activeSpotsData[spot.id];
       if (sData.searched) {
@@ -948,7 +953,7 @@ function startSearching(spotId, spotEl) {
 
   if (searchInterval) clearInterval(searchInterval);
   searchInterval = setInterval(() => {
-    if (!isSearching || !isGameRunning || isGameOver || isInvulnerable) {
+    if (!isSearching || !isGameRunning || isGameOver || isInvulnerable || isPaused) {
       clearInterval(searchInterval);
       return;
     }
@@ -1032,7 +1037,7 @@ window.addEventListener('blur', () => {
 /* 10. SISTEM PINTU EXIT & TRANSISI */
 exitDoor.addEventListener('click', (e) => {
   e.stopPropagation();
-  if (!isGameRunning || isGameOver || isInvulnerable) return;
+  if (!isGameRunning || isGameOver || isInvulnerable || isPaused) return;
 
   if (keysFound < totalKeys) {
     playInspectSound();
@@ -1141,7 +1146,7 @@ function despawnMedkit(respawnDelayMs) {
 if (medkit) {
   medkit.addEventListener('click', (e) => {
     e.stopPropagation();
-    if (!isGameRunning || isGameOver || isInvulnerable || !isMedkitActive) return;
+    if (!isGameRunning || isGameOver || isInvulnerable || isPaused || !isMedkitActive) return;
 
     if (lives < 3) {
       lives++;
@@ -1237,6 +1242,7 @@ function startLevelGame(levelIdx) {
   if (gameContainer) gameContainer.classList.add('playing');
   isGameOver = false;
   isInvulnerable = false;
+  isPaused = false;
   isSearching = false;
   lives = 3;
   keysFound = 0;
@@ -1251,6 +1257,7 @@ function startLevelGame(levelIdx) {
   gameoverScreen.style.display = 'none';
   jumpscareOverlay.style.display = 'none';
   searchHud.style.display = 'none';
+  if (pauseScreen) pauseScreen.style.display = 'none';
 
   loadLevel(levelIdx);
 
@@ -1392,6 +1399,89 @@ if (btnRestart) {
     playMenuClickSound();
     if (gameContainer) gameContainer.classList.remove('playing');
     winScreen.style.display = 'none';
+    startScreen.style.display = 'flex';
+  });
+}
+
+/* ========================================================
+   15. SISTEM PAUSE (TEKAN ESC UNTUK JEDA)
+   ======================================================== */
+function pauseGame() {
+  if (!isGameRunning || isGameOver || isPaused) return;
+
+  // Batalkan penggeledahan yang sedang berjalan agar tidak nyangkut
+  if (isSearching) cancelSearching('Penggeledahan terputus karena dijeda!');
+
+  isPaused = true;
+  if (ghostWanderInterval) clearInterval(ghostWanderInterval);
+  if (medkitMoveInterval) clearInterval(medkitMoveInterval);
+  if (bgmPlayer) bgmPlayer.pause();
+
+  if (pauseScreen) pauseScreen.style.display = 'flex';
+}
+
+function resumeGame() {
+  if (!isGameRunning || isGameOver || !isPaused) return;
+
+  isPaused = false;
+  if (pauseScreen) pauseScreen.style.display = 'none';
+
+  startGhostWanderLoop();
+  if (isMedkitActive) {
+    if (medkitMoveInterval) clearInterval(medkitMoveInterval);
+    medkitMoveInterval = setInterval(() => {
+      if (isMedkitActive && isGameRunning && !isGameOver && !isPaused) {
+        placeMedkitRandomly();
+      }
+    }, 6000);
+  }
+  if (bgmPlayer && !isGameOver) bgmPlayer.play().catch(() => {});
+}
+
+function togglePause() {
+  if (isPaused) {
+    playMenuClickSound();
+    resumeGame();
+  } else {
+    pauseGame();
+  }
+}
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' || e.key === 'Esc') {
+    if (!isGameRunning || isGameOver) return;
+    togglePause();
+  }
+});
+
+if (btnResume) {
+  btnResume.addEventListener('click', () => {
+    playMenuClickSound();
+    resumeGame();
+  });
+}
+
+if (btnPauseRetry) {
+  btnPauseRetry.addEventListener('click', () => {
+    playMenuClickSound();
+    isPaused = false;
+    if (pauseScreen) pauseScreen.style.display = 'none';
+    startLevelGame(currentLevelIndex);
+  });
+}
+
+if (btnPauseMainMenu) {
+  btnPauseMainMenu.addEventListener('click', () => {
+    playMenuClickSound();
+    isPaused = false;
+    isGameRunning = false;
+    if (pauseScreen) pauseScreen.style.display = 'none';
+    if (gameContainer) gameContainer.classList.remove('playing');
+    stopBGM();
+    if (ghostWanderInterval) clearInterval(ghostWanderInterval);
+    if (searchInterval) clearInterval(searchInterval);
+    despawnMedkit(0);
+    searchHud.style.display = 'none';
     startScreen.style.display = 'flex';
   });
 }
