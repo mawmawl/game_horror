@@ -2,7 +2,7 @@
    NIGHTMARE ESCAPES - 3 LEVEL HOROR DENGAN HANTU KHUSUS
    Level 1: Kamar Terkutuk -> Hantu dari asset/level1.png
    Level 2: Rumah Sakit Terbengkalai -> Hantu dari asset/level2.png
-   Level 3: Sekolah Angker -> Hantu Guru / Janitor Sekolah (SVG)
+   Level 3: Sekolah Angker -> Hantu Calvin Lucas dari asset/level3.png
    ======================================================== */
 
 /* 1. ASSET VISUAL UNTUK MASING-MASING HANTU */
@@ -47,54 +47,24 @@ const ghostLvl2Jumpscare = `
   "/>
 `;
 
-// LEVEL 3: HANTU GURU / JANITOR SEKOLAH
+// LEVEL 3: Gambar dari asset/level3.png (Berkeliaran di ruangan)
 const ghostLvl3Roaming = `
-  <svg viewBox="0 0 100 120" fill="none">
-    <!-- Sosok Bungkuk Memakai Jas Tua / Baju Kerja Abu-abu -->
-    <path d="M50 12 C32 12 18 30 18 65 C18 95 12 112 26 112 C36 112 42 98 50 98 C58 98 64 112 74 112 C88 112 82 95 82 65 C82 30 68 12 50 12 Z" fill="#334155" stroke="#1e293b" stroke-width="2"/>
-    <!-- Rambut Abu-abu Botak Tengah -->
-    <path d="M26 35 C18 20 32 8 50 8 C68 8 82 20 74 35" stroke="#94a3b8" stroke-width="4" stroke-linecap="round"/>
-    <!-- Tongkat Penggaris Kayu Panjang / Tangkai Sapu -->
-    <line x1="82" y1="40" x2="88" y2="115" stroke="#78350f" stroke-width="4"/>
-    <!-- Kacamata Bulat Retak dengan Mata Kuning Menyala -->
-    <circle cx="40" cy="40" r="9" stroke="#eab308" stroke-width="2" fill="#09090b"/>
-    <circle cx="40" cy="40" r="3" fill="#facc15"/>
-    <line x1="49" y1="40" x2="51" y2="40" stroke="#eab308" stroke-width="2"/>
-    <circle cx="60" cy="40" r="9" stroke="#eab308" stroke-width="2" fill="#09090b"/>
-    <circle cx="60" cy="40" r="3" fill="#facc15"/>
-    <line x1="36" y1="36" x2="44" y2="44" stroke="#dc2626" stroke-width="1.5"/>
-    <!-- Mulut Sinis dengan Gigi Menguning -->
-    <path d="M38 60 Q50 72 62 60" stroke="#000" stroke-width="4" fill="none"/>
-  </svg>
+  <img src="asset/level3.png" alt="ghost" style="
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: brightness(0.55) saturate(1.2) drop-shadow(0 0 14px rgba(220,38,38,0.7));
+  "/>
 `;
 
+// LEVEL 3: Jumpscare layar penuh menggunakan asset/level3.png
 const ghostLvl3Jumpscare = `
-  <svg viewBox="0 0 200 200" fill="none">
-    <!-- Wajah Guru / Janitor Tua Keriput Menyeramkan -->
-    <path d="M100 15 C45 15 25 55 25 105 C25 145 42 185 100 185 C158 185 175 145 175 105 C175 55 155 15 100 15 Z" fill="#94a3b8" stroke="#1e293b" stroke-width="5"/>
-    <!-- Kerutan Dahi Mendalam -->
-    <path d="M60 40 Q100 25 140 40" stroke="#334155" stroke-width="3" fill="none"/>
-    <path d="M65 52 Q100 38 135 52" stroke="#334155" stroke-width="3" fill="none"/>
-    <!-- Kacamata Bulat Retak Berdarah -->
-    <circle cx="65" cy="85" r="25" stroke="#ca8a04" stroke-width="4" fill="#050505"/>
-    <circle cx="65" cy="85" r="8" fill="#facc15"/>
-    <line x1="50" y1="70" x2="80" y2="100" stroke="#ef4444" stroke-width="3"/>
-    <line x1="90" y1="85" x2="110" y2="85" stroke="#ca8a04" stroke-width="4"/>
-    <circle cx="135" cy="85" r="25" stroke="#ca8a04" stroke-width="4" fill="#050505"/>
-    <circle cx="135" cy="85" r="8" fill="#facc15"/>
-    <line x1="120" y1="95" x2="150" y2="75" stroke="#ef4444" stroke-width="3"/>
-    <!-- Hidung Keriput Besar -->
-    <path d="M96 115 L100 95 L104 115 Z" fill="#1e293b"/>
-    <!-- Dasi Sekolah Tercekik di Leher -->
-    <polygon points="92,185 108,185 114,200 86,200" fill="#991b1b"/>
-    <!-- Mulut Tua Menganga dengan Gigi Kuning Busuk -->
-    <ellipse cx="100" cy="148" rx="36" ry="28" fill="#000" stroke="#450a0a" stroke-width="5"/>
-    <rect x="80" y="132" width="8" height="12" fill="#fef08a" stroke="#ca8a04"/>
-    <rect x="94" y="130" width="8" height="14" fill="#fef08a" stroke="#ca8a04"/>
-    <rect x="108" y="132" width="7" height="11" fill="#fef08a" stroke="#ca8a04"/>
-    <rect x="88" y="152" width="8" height="12" fill="#fef08a" stroke="#ca8a04"/>
-    <rect x="102" y="150" width="8" height="14" fill="#fef08a" stroke="#ca8a04"/>
-  </svg>
+  <img src="asset/level3.png" alt="jumpscare" style="
+    width: 85vmin;
+    height: 85vmin;
+    object-fit: contain;
+    filter: contrast(200%) brightness(0.8) saturate(1.8) drop-shadow(0 0 50px #ff0000);
+  "/>
 `;
 
 /* 2. DATA 3 LEVEL & KONFIGURASI HANTU */
